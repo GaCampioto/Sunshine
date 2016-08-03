@@ -1,7 +1,11 @@
 package com.gcampioto.sunshine.app;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +32,8 @@ import java.util.List;
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment {
+
+    private static final int PERMISSION_INTERNET = 0;
 
     public ForecastFragment() {
     }
@@ -58,6 +64,9 @@ public class ForecastFragment extends Fragment {
                 new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, forecastEntries);
         ListView forecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
         forecastListView.setAdapter(forecastAdapter);
+        if(ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(getActivity(), new String[] {Manifest.permission.INTERNET}, PERMISSION_INTERNET);
+        }
 
         return rootView;
     }
@@ -76,22 +85,36 @@ public class ForecastFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_refresh) {
-            new FetchWeatherTask().execute();
+            new FetchWeatherTask().execute("94043");
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private class FetchWeatherTask extends AsyncTask<Object, Object, Void> {
+    private class FetchWeatherTask extends AsyncTask<String, Void, Void> {
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
         @Override
-        protected Void doInBackground(Object... objects) {
+        protected Void doInBackground(String... strings) {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
+            String zipCode = strings[0];
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
-
+            Uri.Builder uriBuilder = new Uri.Builder();
+            uriBuilder.scheme("http")
+                    .authority("api.openweathermap.org")
+                    .appendPath("data")
+                    .appendPath("2.5")
+                    .appendPath("forecast")
+                    .appendPath("daily")
+                    .appendQueryParameter("q", zipCode)
+                    .appendQueryParameter("mode", "json")
+                    .appendQueryParameter("units", "metrics")
+                    .appendQueryParameter("cnt", "7")
+                    .appendQueryParameter("appid", "ac015faa0a76837da2f4542744fd0f08");
+            String createdUrl = uriBuilder.toString();
+            Log.d(LOG_TAG, createdUrl);
             // Will contain the raw JSON response as a string.
             String forecastJsonStr = null;
 
@@ -99,7 +122,7 @@ public class ForecastFragment extends Fragment {
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                URL url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=94043&mode=json&units=metric&cnt=7");
+                URL url = new URL(createdUrl);
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -128,6 +151,7 @@ public class ForecastFragment extends Fragment {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
+                Log.d(LOG_TAG, forecastJsonStr);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
