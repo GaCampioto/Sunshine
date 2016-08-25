@@ -1,6 +1,7 @@
 package com.gcampioto.sunshine.app;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -16,8 +17,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,6 +49,8 @@ public class ForecastFragment extends Fragment {
     private final String COUNT_PARAM = "cnt";
     private final String APPID_PARAM = "appid";
 
+    public final String WEATHER_INFO = "weatherInfo";
+
     private ArrayAdapter<String> mForecastAdapter;
 
     public ForecastFragment() {
@@ -62,7 +67,7 @@ public class ForecastFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        List<String> forecastEntries = new ArrayList<>();
+        final List<String> forecastEntries = new ArrayList<>();
         String[] forecastArray = {
                     "Hoje -- Ensolarado -- 21/28",
                     "Amanhã -- Ensolarado -- 21/28",
@@ -77,6 +82,14 @@ public class ForecastFragment extends Fragment {
                 new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, forecastEntries);
         ListView forecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
         forecastListView.setAdapter(mForecastAdapter);
+        forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent detailActivity = new Intent(getActivity(), DetailActivity.class);
+                detailActivity.putExtra(WEATHER_INFO, mForecastAdapter.getItem(i));
+                startActivity(detailActivity);
+            }
+        });
 
         if(ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(getActivity(), new String[] {Manifest.permission.INTERNET}, PERMISSION_INTERNET);
