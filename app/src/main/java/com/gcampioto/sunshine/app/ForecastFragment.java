@@ -49,7 +49,7 @@ public class ForecastFragment extends Fragment {
     private final String COUNT_PARAM = "cnt";
     private final String APPID_PARAM = "appid";
 
-    public final String WEATHER_INFO = "weatherInfo";
+    public static final String WEATHER_INFO = "weatherInfo";
 
     private ArrayAdapter<String> mForecastAdapter;
 
