@@ -1,6 +1,7 @@
 package com.gcampioto.sunshine.app;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -37,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent settingActivity = new Intent(this, SettingsActivity.class);
+            startActivity(settingActivity);
             return true;
         }
 

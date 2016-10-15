@@ -1,5 +1,6 @@
 package com.gcampioto.sunshine.app;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -42,6 +43,8 @@ public class DetailActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent settingActivity = new Intent(this, SettingsActivity.class);
+            startActivity(settingActivity);
             return true;
         }
 
@@ -59,7 +62,6 @@ public class DetailActivity extends ActionBarActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
             TextView detailTextView = (TextView) rootView.findViewById(R.id.text_view_detail);
             Intent intent = getActivity().getIntent();
